@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{E5FD6EE1-BC8C-40D6-B4ED-F72EFF83E267}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Robotics</RootNamespace>
+    <AssemblyName>Robotics</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Telerik.WinControls, Version=2015.3.1104.20, Culture=neutral, PublicKeyToken=5bb2a467cbec794e, processorArchitecture=MSIL" />
+    <Reference Include="Telerik.WinControls.UI, Version=2015.3.1104.20, Culture=neutral, PublicKeyToken=5bb2a467cbec794e, processorArchitecture=MSIL" />
+    <Reference Include="TelerikCommon, Version=2015.3.1104.20, Culture=neutral, PublicKeyToken=5bb2a467cbec794e, processorArchitecture=MSIL" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ImageCreate.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Robot.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Robot.Designer.cs">
+      <DependentUpon>Robot.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Robotics.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Robotics.Designer.cs">
+      <DependentUpon>Robotics.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="obj\Debug\Robotics.Properties.Resources.resources" />
+    <EmbeddedResource Include="obj\Debug\Robotics.Robot.resources" />
+    <EmbeddedResource Include="obj\Debug\Robotics.Robotics.resources" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Robot.resx">
+      <DependentUpon>Robot.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Robotics.resx">
+      <DependentUpon>Robotics.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="Images\doc-doc.psd" />
+    <None Include="Images\Untitled-2.psd" />
+    <None Include="Images\Untitled-3.psd" />
+    <None Include="obj\Debug\DesignTimeResolveAssemblyReferences.cache" />
+    <None Include="obj\Debug\DesignTimeResolveAssemblyReferencesInput.cache" />
+    <None Include="obj\Debug\Robotics.csproj.GenerateResource.Cache" />
+    <None Include="obj\Debug\Robotics.csprojResolveAssemblyReference.cache" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="bin\Release\" />
+    <Folder Include="obj\Debug\TempPE\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="bin\Debug\backgroud\maping.png" />
+    <Content Include="bin\Debug\gach\1-cham.jpg" />
+    <Content Include="bin\Debug\gach\2-cham.jpg" />
+    <Content Include="bin\Debug\gach\gach1.jpg" />
+    <Content Include="bin\Debug\gach\gach11.jpg" />
+    <Content Include="bin\Debug\gach\gach2.jpg" />
+    <Content Include="bin\Debug\gach\gach21.jpg" />
+    <Content Include="bin\Debug\Image\1532_Flag_system_Blue.png" />
+    <Content Include="bin\Debug\Image\1532_Flag_system_Green.png" />
+    <Content Include="bin\Debug\Image\1532_Flag_system_Purple.png" />
+    <Content Include="bin\Debug\Image\1532_Flag_system_red.png" />
+    <Content Include="bin\Debug\Image\1532_Flag_system_yellow.png" />
+    <Content Include="bin\Debug\Image\f1.png" />
+    <Content Include="bin\Debug\Image\f2.png" />
+    <Content Include="bin\Debug\Image\flag_blue.png" />
+    <Content Include="bin\Debug\Image\flag_green.bmp" />
+    <Content Include="bin\Debug\Image\flag_green.png" />
+    <Content Include="bin\Debug\Image\flag_red.png" />
+    <Content Include="bin\Debug\Image\h1.png" />
+    <Content Include="bin\Debug\Image\h2.png" />
+    <Content Include="bin\Debug\Image\h3.png" />
+    <Content Include="bin\Debug\Image\H4.png" />
+    <Content Include="bin\Debug\Image\H5.png" />
+    <Content Include="bin\Debug\Image\H6.png" />
+    <Content Include="bin\Debug\Image\maping.png" />
+    <Content Include="bin\Debug\Image\ngocut.png" />
+    <Content Include="bin\Debug\Image\Robot-48.png" />
+    <Content Include="bin\Debug\Robotics.exe" />
+    <Content Include="bin\Debug\Robotics.pdb" />
+    <Content Include="Images\1-cham.png" />
+    <Content Include="Images\2-cham.png" />
+    <Content Include="Images\duoi-phai.png" />
+    <Content Include="Images\trai-duoi.png" />
+    <Content Include="Images\trai-phai.png" />
+    <Content Include="Images\tren-duoi.png" />
+    <Content Include="Images\tren-phai.png" />
+    <Content Include="Images\tren-trai.png" />
+    <Content Include="obj\Debug\Robotics.csproj.FileListAbsolute.txt" />
+    <Content Include="obj\Debug\Robotics.exe" />
+    <Content Include="obj\Debug\Robotics.pdb" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
