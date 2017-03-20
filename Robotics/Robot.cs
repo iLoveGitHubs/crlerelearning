@@ -338,6 +338,7 @@ namespace Robotics
         private void KB()
         {
             ImageCreate image = new ImageCreate();
+            // Can kiem tra dieu kien Ngo cut
             DuongDi.Add(Ngocut[0]);
             Path.Add(new Point(Ngocut[0].X, Ngocut[0].Y));
             graphics = image.Draw_Bitmap_Graphics(5 + Ngocut[0].Y * deltaY + 1, 5 + Ngocut[0].X * deltaX + 1, "Image/Robot-48.png", graphics);
