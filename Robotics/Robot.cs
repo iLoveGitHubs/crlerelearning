@@ -114,6 +114,7 @@ namespace Robotics
                 return true;
         }
 
+        // Tinh so lan can
         public void DegNode()
         {
             ImageCreate image = new ImageCreate();
