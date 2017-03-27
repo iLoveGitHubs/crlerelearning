@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -12,7 +13,11 @@ namespace Robotics
 {
     public partial class Robot : Form
     {
-        private int M = 12, N = 18;
+        /// <summary>
+        /// </summary>
+        public int M { get; set; }
+        public int N { get; set; }
+
         private int[,] A, Deg, F, TruyVet;
         private bool[,] Dinhdoi;
         private bool[,] dded;
@@ -22,6 +27,7 @@ namespace Robotics
         private int INDEX = -1;
         private int IndexLoangDatam = 0;
         private int indexPath = 0;
+
 
         private Graphics graphics;
         private ImageCreate imageCreate;
@@ -34,6 +40,7 @@ namespace Robotics
         public Robot()
         {
             InitializeComponent();
+            M = 12; N = 18;
             graphics = pictureBoxContent.CreateGraphics();
             A = new int[M, N];
             Deg = new int[M, N];
@@ -92,6 +99,32 @@ namespace Robotics
             }
         }
 
+        private void buttonRandomMap_Click(object sender, EventArgs e)
+        {
+            if (INDEX == 0)
+            {
+                ImageCreate image = new ImageCreate();
+                Random random = new Random();
+                for (int x = 0; x < M; x++)
+                {
+                    for (int y = 0; y < N; y++)
+                    {
+                        double flag = random.NextDouble();
+                        if (flag <= 0.5)
+                        {
+                            A[x, y] = 0;
+                            graphics = image.Draw_Rangce_Graphics(5 + y * deltaY + 1, 5 + x * deltaX + 1, deltaY - 2, deltaX - 2, Color.Black, graphics);
+                        }
+                        else
+                        {
+                            A[x, y] = 1;
+                            graphics = image.Draw_Rangce_Graphics(5 + y * deltaY + 1, 5 + x * deltaX + 1, deltaY - 2, deltaX - 2, Color.White, graphics);
+                        }
+                    }
+                }
+            }
+        }
+
         public void CreateMap()
         {
             imageCreate = new ImageCreate(M, N, A);
@@ -142,19 +175,19 @@ namespace Robotics
                         graphics = image.Draw_String_Graphics(5 + j * deltaY + 17, 5 + i * deltaX + 15, 14, Deg[i, j] + "", graphics);
                     }
 
-            Thread.Sleep(500);
+            Thread.Sleep(10);
             //bool check1 = true;
             for (int i = 0; i < M; i++)
                 //if (check1)
-                    for (int j = 0; j < N; j++)
-                        if (Deg[i, j] == 1)
-                        {
-                            graphics = image.Draw_Bitmap_Graphics(5 + j * deltaY + 1, 5 + i * deltaX + 1, "Image/1532_Flag_system_Blue.png", graphics);
-                            Ngocut.Add(new Point(i, j));
-                            //check1 = false;
-                            //break;
-                        }
-            Thread.Sleep(500);
+                for (int j = 0; j < N; j++)
+                    if (Deg[i, j] == 1)
+                    {
+                        graphics = image.Draw_Bitmap_Graphics(5 + j * deltaY + 1, 5 + i * deltaX + 1, "Image/1532_Flag_system_Blue.png", graphics);
+                        Ngocut.Add(new Point(i, j));
+                        //check1 = false;
+                        //break;
+                    }
+            Thread.Sleep(10);
         }
 
         private void btnRuning_Click(object sender, EventArgs e)
@@ -248,10 +281,10 @@ namespace Robotics
                     graphics = image.Draw_String_Graphics(5 + v * deltaY + 17, 5 + u * deltaX + 15, 14, F[u, v] + "", graphics);
                 else
                     if (F[u, v] < 100)
-                        graphics = image.Draw_String_Graphics(5 + v * deltaY + 12, 5 + u * deltaX + 15, 14, F[u, v] + "", graphics);
-                    else
+                    graphics = image.Draw_String_Graphics(5 + v * deltaY + 12, 5 + u * deltaX + 15, 14, F[u, v] + "", graphics);
+                else
                         if (F[u, v] < 1000)
-                            graphics = image.Draw_String_Graphics(5 + v * deltaY + 7, 5 + u * deltaX + 15, 14, F[u, v] + "", graphics);
+                    graphics = image.Draw_String_Graphics(5 + v * deltaY + 7, 5 + u * deltaX + 15, 14, F[u, v] + "", graphics);
                 IndexLoangDatam++;
             }
             else
@@ -276,6 +309,93 @@ namespace Robotics
             else
                 return true;
         }
+
+        private void buttonSaveMap_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+            saveFileDialog.FilterIndex = 1;
+            saveFileDialog.RestoreDirectory = true;
+            saveFileDialog.ShowDialog();
+            string fileName = saveFileDialog.FileName;
+            if (fileName != "")
+            {
+                StreamWriter m_objOutput = new StreamWriter(fileName, false);
+                for (int i = 0; i < M; i++)
+                {
+                    for (int j = 0; j < N; j++)
+                    {
+                        m_objOutput.Write(A[i, j].ToString() + "\t");
+                    }
+                    m_objOutput.WriteLine();
+                }
+                m_objOutput.Close();
+            }
+        }
+
+        private void buttonLoadMap_Click(object sender, EventArgs e)
+        {
+            //try
+            //{
+            OpenFileDialog ofd = new OpenFileDialog();
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                StreamReader sr = new StreamReader(ofd.FileName);
+                string line = sr.ReadLine();
+                int lineID = 0;
+                while (line != null)
+                {
+                    int colID = 0;
+                    int startPos = 0;
+                    int endPos = 0;
+                    for (int i = 0; i < line.Length; i++)
+                    {
+                        if (line[i] == '\t')
+                        {
+                            endPos = i;
+                            string sub = line.Substring(startPos, endPos - startPos);
+                            //if (N < colID)
+                            //{
+                            A[lineID, colID] = Convert.ToInt32(sub);
+                            //}
+                            // Gia tri cua map chi la 0, 1
+                            startPos = i + 1;
+                            colID++;
+                        }
+                    }
+                    lineID++;
+                    line = sr.ReadLine();
+                }
+                ////////////////////////////
+
+
+
+                ImageCreate image = new ImageCreate();
+                for (int x = 0; x < M; x++)
+                {
+                    for (int y = 0; y < N; y++)
+                    {
+                        if (A[x, y] == 0)
+                        {
+                            graphics = image.Draw_Rangce_Graphics(5 + y * deltaY + 1, 5 + x * deltaX + 1, deltaY - 2, deltaX - 2, Color.Black, graphics);
+                        }
+                        else
+                        {
+                            graphics = image.Draw_Rangce_Graphics(5 + y * deltaY + 1, 5 + x * deltaX + 1, deltaY - 2, deltaX - 2, Color.White, graphics);
+                        }
+                    }
+                }
+
+
+                ///////////////////////////////
+            }
+            //}
+            //catch(Exception ex)
+            //{
+            //    MessageBox.Show("Dinh dang du lieu khong dung, xin thu lai !");
+            //}
+        }
+
 
         private int BFS(int m, int n, Point p, int[,] a)
         {
@@ -399,153 +519,153 @@ namespace Robotics
                 }
                 else
                     if (dem > 1)
+                {
+                    //Áp dụng luật 2, chọn ô có giá trị F bé nhất
+                    int[] f = new int[5];
+                    for (int k = 0; k < 4; k++)
+                        if (c[k])
+                        {
+                            int u = x + Hx[k];
+                            int v = y + Hy[k];
+                            f[k] = F[u, v];
+                        }
+                    //Console.WriteLine("f = " + f);
+                    int min = 10000;
+                    for (int k = 0; k < 4; k++)
+                        if (c[k] && f[k] < min)
+                            min = f[k];
+
+                    bool[] cmin = new bool[5];
+                    for (int k = 0; k < 4; k++)
+                        if (c[k] && f[k] == min)
+                            cmin[k] = true;
+
+                    int demmin = 0;
+                    for (int k = 0; k < 4; k++)
+                        if (cmin[k])
+                            demmin++;
+                    //Console.WriteLine("demmin = " + demmin + " cmin = " + cmin);
+                    //Trường hợp chỉ có một ô có giá trị F bé nhất
+                    if (demmin == 1)
                     {
-                        //Áp dụng luật 2, chọn ô có giá trị F bé nhất
-                        int[] f = new int[5];
+                        int vt = -1;
+                        for (int i = 0; i < 4; i++)
+                            if (cmin[i])
+                                vt = i;
+                        int u = x + Hx[vt];
+                        int v = y + Hy[vt];
+                        //Console.WriteLine("demmin = (1) " + demmin + " u = " + u + " v = " + v);
+                        DuongDi.Add(new Point(u, v));
+                        Path.Add(new Point(u, v));
+                        NumberPathed++;
+                        TruyVet[u, v] = 0;
+                    }
+                    //trường hợp có nhiều ô cùng giá trị F
+                    //Xét có phải là đỉnh đồi -> Ưu tiên về đỉnh đồi
+                    else
+                    {
+                        int demdd = 0;
                         for (int k = 0; k < 4; k++)
-                            if (c[k])
+                            if (cmin[k] && Dinhdoi[x + Hx[k], y + Hy[k]])
                             {
-                                int u = x + Hx[k];
-                                int v = y + Hy[k];
-                                f[k] = F[u, v];
+                                demdd++;
                             }
-                        //Console.WriteLine("f = " + f);
-                        int min = 10000;
-                        for (int k = 0; k < 4; k++)
-                            if (c[k] && f[k] < min)
-                                min = f[k];
-
-                        bool[] cmin = new bool[5];
-                        for (int k = 0; k < 4; k++)
-                            if (c[k] && f[k] == min)
-                                cmin[k] = true;
-
-                        int demmin = 0;
-                        for (int k = 0; k < 4; k++)
-                            if (cmin[k])
-                                demmin++;
-                        //Console.WriteLine("demmin = " + demmin + " cmin = " + cmin);
-                        //Trường hợp chỉ có một ô có giá trị F bé nhất
-                        if (demmin == 1)
+                        //Console.WriteLine("demdinhdoi = " + demdd);
+                        //Nếu chỉ có duy nhất 1 đỉnh đồi thì chọn đỉnh đồi
+                        if (demdd == 1)
                         {
                             int vt = -1;
                             for (int i = 0; i < 4; i++)
-                                if (cmin[i])
+                                if (cmin[i] && Dinhdoi[x + Hx[i], y + Hy[i]])
                                     vt = i;
                             int u = x + Hx[vt];
                             int v = y + Hy[vt];
-                            //Console.WriteLine("demmin = (1) " + demmin + " u = " + u + " v = " + v);
+                            //Console.WriteLine("demdinhdoi = " + demdd + " u = " + u + " v = " + v);
                             DuongDi.Add(new Point(u, v));
                             Path.Add(new Point(u, v));
                             NumberPathed++;
                             TruyVet[u, v] = 0;
                         }
-                        //trường hợp có nhiều ô cùng giá trị F
-                        //Xét có phải là đỉnh đồi -> Ưu tiên về đỉnh đồi
                         else
+                        //Chọn đỉnh có bậc thấp hơn
                         {
-                            int demdd = 0;
+                            int[] ddeg = new int[5];
                             for (int k = 0; k < 4; k++)
-                                if (cmin[k] && Dinhdoi[x + Hx[k], y + Hy[k]])
+                                if (cmin[k])
+                                    ddeg[k] = Deg[x + Hx[k], y + Hy[k]];
+                            int mindeg = 1000;
+                            int vt = -1;
+                            for (int k = 0; k < 4; k++)
+                                if (cmin[k] && ddeg[k] < mindeg)
                                 {
-                                    demdd++;
+                                    mindeg = ddeg[k];
+                                    vt = k;
                                 }
-                            //Console.WriteLine("demdinhdoi = " + demdd);
-                            //Nếu chỉ có duy nhất 1 đỉnh đồi thì chọn đỉnh đồi
-                            if (demdd == 1)
+                            int d = 0;
+                            for (int k = 0; k < 4; k++)
+                                if (cmin[k] && ddeg[k] == mindeg)
+                                    d++;
+                            //Console.WriteLine("demdinhdoi = " + demdd + " mindeg = " + mindeg + " d = " + d + " ddeg = " + ddeg);
+                            //Chọn đỉnh k là đường đi tiếp theo
+                            if (d == 1)
                             {
-                                int vt = -1;
-                                for (int i = 0; i < 4; i++)
-                                    if (cmin[i] && Dinhdoi[x + Hx[i], y + Hy[i]])
-                                        vt = i;
+                                for (int k = 0; k < 4; k++)
+                                    if (cmin[k] && ddeg[k] == mindeg)
+                                        vt = k;
                                 int u = x + Hx[vt];
                                 int v = y + Hy[vt];
-                                //Console.WriteLine("demdinhdoi = " + demdd + " u = " + u + " v = " + v);
+                                //Console.WriteLine("Chon duoc 1 dinh doi u = " + u + " v = " + v);
                                 DuongDi.Add(new Point(u, v));
                                 Path.Add(new Point(u, v));
                                 NumberPathed++;
                                 TruyVet[u, v] = 0;
                             }
                             else
-                            //Chọn đỉnh có bậc thấp hơn
                             {
-                                int[] ddeg = new int[5];
-                                for (int k = 0; k < 4; k++)
-                                    if (cmin[k])
-                                        ddeg[k] = Deg[x + Hx[k], y + Hy[k]];
-                                int mindeg = 1000;
-                                int vt = -1;
-                                for (int k = 0; k < 4; k++)
-                                    if (cmin[k] && ddeg[k] < mindeg)
-                                    {
-                                        mindeg = ddeg[k];
-                                        vt = k;
-                                    }
-                                int d = 0;
+                                //Console.WriteLine("Truoc");
+                                //DisplayArray(M, N, TruyVet);
+                                int[,] tv = new int[M, N];
+                                tv = TruyVet;
+                                int[] tute = new int[5];
                                 for (int k = 0; k < 4; k++)
                                     if (cmin[k] && ddeg[k] == mindeg)
-                                        d++;
-                                //Console.WriteLine("demdinhdoi = " + demdd + " mindeg = " + mindeg + " d = " + d + " ddeg = " + ddeg);
-                                //Chọn đỉnh k là đường đi tiếp theo
-                                if (d == 1)
-                                {
-                                    for (int k = 0; k < 4; k++)
-                                        if (cmin[k] && ddeg[k] == mindeg)
-                                            vt = k;
-                                    int u = x + Hx[vt];
-                                    int v = y + Hy[vt];
-                                    //Console.WriteLine("Chon duoc 1 dinh doi u = " + u + " v = " + v);
-                                    DuongDi.Add(new Point(u, v));
-                                    Path.Add(new Point(u, v));
-                                    NumberPathed++;
-                                    TruyVet[u, v] = 0;
-                                }
-                                else
-                                {
-                                    //Console.WriteLine("Truoc");
-                                    //DisplayArray(M, N, TruyVet);
-                                    int[,] tv = new int[M, N];
-                                    tv = TruyVet;
-                                    int[] tute = new int[5];
-                                    for (int k = 0; k < 4; k++)
-                                        if (cmin[k] && ddeg[k] == mindeg)
-                                        {
-                                            int u = x + Hx[k];
-                                            int v = y + Hy[k];
-                                            tute[k] = RBFS(new Point(u, v), M, N, 3, tv, Deg);
-                                        }
-                                    //Console.WriteLine("Sau");
-                                    //DisplayArray(M, N, TruyVet);
-                                    int minR = 10000;
-                                    for (int k = 0; k < 4; k++)
-                                        if (cmin[k] && ddeg[k] == mindeg && tute[k] < minR)
-                                        {
-                                            minR = tute[k];
-                                            vt = k;
-                                        }
-                                    int uu = x + Hx[vt];
-                                    int vv = y + Hy[vt];
+                                    {
+                                        int u = x + Hx[k];
+                                        int v = y + Hy[k];
+                                        tute[k] = RBFS(new Point(u, v), M, N, 3, tv, Deg);
+                                    }
+                                //Console.WriteLine("Sau");
+                                //DisplayArray(M, N, TruyVet);
+                                int minR = 10000;
+                                for (int k = 0; k < 4; k++)
+                                    if (cmin[k] && ddeg[k] == mindeg && tute[k] < minR)
+                                    {
+                                        minR = tute[k];
+                                        vt = k;
+                                    }
+                                int uu = x + Hx[vt];
+                                int vv = y + Hy[vt];
 
-                                    DuongDi.Add(new Point(uu, vv));
-                                    Path.Add(new Point(uu, vv));
-                                    //Console.WriteLine("Khong co dinh doi " + tute + " minR = " + minR + " u = " + uu + " vv = " + vv);
-                                    NumberPathed++;
-                                    TruyVet[uu, vv] = 0;
-                                }
+                                DuongDi.Add(new Point(uu, vv));
+                                Path.Add(new Point(uu, vv));
+                                //Console.WriteLine("Khong co dinh doi " + tute + " minR = " + minR + " u = " + uu + " vv = " + vv);
+                                NumberPathed++;
+                                TruyVet[uu, vv] = 0;
                             }
                         }
                     }
-                    else
-                    //Trường hợp đi vào ngõ cụt -> backtracking
+                }
+                else
+                //Trường hợp đi vào ngõ cụt -> backtracking
+                {
+                    if (DuongDi.Count > 1)
                     {
-                        if (DuongDi.Count > 1)
-                        {
-                            DuongDi = DuongDi.GetRange(0, DuongDi.Count - 1);
-                            Path.Add(DuongDi[DuongDi.Count - 1]);
-                        }
-                        else
-                            break;
+                        DuongDi = DuongDi.GetRange(0, DuongDi.Count - 1);
+                        Path.Add(DuongDi[DuongDi.Count - 1]);
                     }
+                    else
+                        break;
+                }
             }
         }
 
@@ -569,34 +689,34 @@ namespace Robotics
                     }
                     else
                         if (ind == 1)
-                        {
-                            image.Draw_Bitmap_Graphics(5 + v * deltaX + 1, 5 + u * deltaY + 1, "image/trai-duoi.png", graphics);
-                        }
-                        else
+                    {
+                        image.Draw_Bitmap_Graphics(5 + v * deltaX + 1, 5 + u * deltaY + 1, "image/trai-duoi.png", graphics);
+                    }
+                    else
                             if (ind == 2)
-                            {
-                                image.Draw_Bitmap_Graphics(5 + v * deltaX + 1, 5 + u * deltaY + 1, "image/trai-phai.png", graphics);
-                            }
-                            else
+                    {
+                        image.Draw_Bitmap_Graphics(5 + v * deltaX + 1, 5 + u * deltaY + 1, "image/trai-phai.png", graphics);
+                    }
+                    else
                                 if (ind == 3)
-                                {
-                                    image.Draw_Bitmap_Graphics(5 + v * deltaX + 1, 5 + u * deltaY + 1, "image/tren-duoi.png", graphics);
-                                }
-                                else
+                    {
+                        image.Draw_Bitmap_Graphics(5 + v * deltaX + 1, 5 + u * deltaY + 1, "image/tren-duoi.png", graphics);
+                    }
+                    else
                                     if (ind == 4)
-                                    {
-                                        image.Draw_Bitmap_Graphics(5 + v * deltaX + 1, 5 + u * deltaY + 1, "image/tren-phai.png", graphics);
-                                    }
-                                    else
+                    {
+                        image.Draw_Bitmap_Graphics(5 + v * deltaX + 1, 5 + u * deltaY + 1, "image/tren-phai.png", graphics);
+                    }
+                    else
                                         if (ind == 5)
-                                        {
-                                            image.Draw_Bitmap_Graphics(5 + v * deltaX + 1, 5 + u * deltaY + 1, "image/tren-trai.png", graphics);
-                                        }
-                                        else
-                                        {
-                                            image.Draw_Bitmap_Graphics(5 + v * deltaX + 1, 5 + u * deltaY + 1, "image/f2.png", graphics);
-                                        }
-                    
+                    {
+                        image.Draw_Bitmap_Graphics(5 + v * deltaX + 1, 5 + u * deltaY + 1, "image/tren-trai.png", graphics);
+                    }
+                    else
+                    {
+                        image.Draw_Bitmap_Graphics(5 + v * deltaX + 1, 5 + u * deltaY + 1, "image/f2.png", graphics);
+                    }
+
                 }
                 indexPath++;
             }
@@ -625,29 +745,29 @@ namespace Robotics
             }
             else
                 if ((A.X - B.X == 1 && A.Y == B.Y && B.X == C.X && B.Y - C.Y == 1) || (C.X - B.X == 1 && C.Y == B.Y && B.X == A.X && B.Y - A.Y == 1))
-                {
-                    return 1;
-                }
-                else
+            {
+                return 1;
+            }
+            else
                     if ((A.X == B.X && B.Y - A.Y == 1 && B.X == C.X && C.Y - B.Y == 1) || (A.X == B.X && B.Y - A.Y == -1 && B.X == C.X && C.Y - B.Y == -1))
-                    {
-                        return 2;
-                    }
-                    else
+            {
+                return 2;
+            }
+            else
                         if ((A.Y == B.Y && B.X - A.X == 1 && B.Y == C.Y && C.X - B.X == 1) || (A.Y == B.Y && B.X - A.X == -1 && B.Y == C.Y && C.X - B.X == -1))
-                        {
-                            return 3;
-                        }
-                        else
+            {
+                return 3;
+            }
+            else
                             if ((A.X - B.X == -1 && A.Y == B.Y && B.X == C.X && B.Y - C.Y == -1) || (C.X - B.X == -1 && C.Y == B.Y && B.X == A.X && B.Y - A.Y == -1))
-                            {
-                                return 4;
-                            }
-                            else
+            {
+                return 4;
+            }
+            else
                                 if ((A.X - B.X == -1 && A.Y == B.Y && B.X == C.X && B.Y - C.Y == 1) || (C.X - B.X == -1 && C.Y == B.Y && B.X == A.X && B.Y - A.Y == 1))
-                                {
-                                    return 5;
-                                }
+            {
+                return 5;
+            }
             return -1;
         }
     }

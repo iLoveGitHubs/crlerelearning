@@ -148,7 +148,7 @@ namespace Robotics
                     {
                         graphics = image.Draw_String_Graphics(5 + j * deltaY + 17, 5 + i * deltaX + 15, 14, Deg[i, j] + "", graphics);
                     }
-            Thread.Sleep(3000);
+            //Thread.Sleep(3000);
             bool check1 = true;
             for (int i = 0; i < M; i++)
                 if(check1)
@@ -160,7 +160,7 @@ namespace Robotics
                             //check1 = false;
                             //break;
                         }
-            Thread.Sleep(3000);
+            //Thread.Sleep(3000);
         }
 
         private void LoangDatam()
