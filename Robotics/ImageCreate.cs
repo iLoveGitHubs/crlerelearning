@@ -17,7 +17,7 @@ namespace Robotics
             A = new int[m, n];
             M = m;
             N = n;
-            deltaX = 600 / M;
+            deltaX = 500 / M;
             deltaY = 900 / N;
             for(int i=0;i<M;i++)
                 for(int j=0;j<N;j++)

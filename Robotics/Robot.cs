@@ -17,7 +17,6 @@ namespace Robotics
         /// </summary>
         public int M { get; set; }
         public int N { get; set; }
-
         private int[,] A, Deg, F, TruyVet;
         private bool[,] Dinhdoi;
         private bool[,] dded;
@@ -27,6 +26,7 @@ namespace Robotics
         private int INDEX = -1;
         private int IndexLoangDatam = 0;
         private int indexPath = 0;
+        bool stopFlag = true;
 
 
         private Graphics graphics;
@@ -37,10 +37,43 @@ namespace Robotics
         private List<Point> DuongDi = new List<Point>();
         private List<Point> Path = new List<Point>();
 
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            if(propertyName!= null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+        BindingClass binding;
         public Robot()
         {
             InitializeComponent();
-            M = 12; N = 18;
+
+            //Khoi tao gia tri binding
+            binding = new BindingClass();
+            binding.SoOToiDaDiDuoc = 1;
+            binding.TiLeBaoPhu = 1;
+            binding.SoBuocToiDaSeDi = 0;
+            binding.SoBuocDaDi = 0;        
+            binding.ThoiGianGioiHan = 0;
+            binding.SoOChePhuTrongTGiay = 0;
+            binding.SoOLapLai = 0;
+            binding.TiLeLapLai = 0;
+            //M = 30; N = 40;
+            M = 10; N = 18;
+
+            //Gan gia tri cho textbox
+            this.textBox1.DataBindings.Add("Text", binding, "soOToiDaDiDuoc", true, DataSourceUpdateMode.OnPropertyChanged);
+            this.textBox2.DataBindings.Add("Text", binding, "tiLeBaoPhu", true, DataSourceUpdateMode.OnPropertyChanged);
+            this.textBox3.DataBindings.Add("Text", binding, "soBuocToiDaSeDi", true, DataSourceUpdateMode.OnPropertyChanged);
+            this.textBox4.DataBindings.Add("Text", binding, "SoBuocDaDi", true, DataSourceUpdateMode.OnPropertyChanged);
+            this.textBox5.DataBindings.Add("Text", binding, "thoiGianGioiHan", true, DataSourceUpdateMode.OnPropertyChanged);
+            this.textBox6.DataBindings.Add("Text", binding, "soOChePhuTrongTGiay", true, DataSourceUpdateMode.OnPropertyChanged);
+            this.textBox7.DataBindings.Add("Text", binding, "soOLapLai", true, DataSourceUpdateMode.OnPropertyChanged);
+            this.textBox8.DataBindings.Add("Text", binding, "tiLeLapLai", true, DataSourceUpdateMode.OnPropertyChanged);
+            
+
             graphics = pictureBoxContent.CreateGraphics();
             A = new int[M, N];
             Deg = new int[M, N];
@@ -59,7 +92,7 @@ namespace Robotics
                     dded[i, j] = false;
                     TruyVet[i, j] = -1;
                 }
-            deltaX = 600 / M;
+            deltaX = 500 / M;            
             deltaY = 900 / N;
             PaintMatrix(graphics);
         }
@@ -72,11 +105,15 @@ namespace Robotics
             for (int i = 0; i <= N; i++)
                 g = image.Draw_Line_Graphics(5 + i * deltaY, 5, 5 + i * deltaY, 605, 2, Color.Blue, g);
         }
-
+        #region buttonCreatMap
         private void btncreateMap_Click(object sender, EventArgs e)
         {
             PaintMatrix(graphics);
             INDEX = 0;
+        }
+        private void btnRuning_Click(object sender, EventArgs e)
+        {
+            DegNode();
         }
 
         private void pictureBoxContent_MouseClick(object sender, MouseEventArgs e)
@@ -89,7 +126,7 @@ namespace Robotics
                 if (A[x, y] == 1)
                 {
                     A[x, y] = 0;
-                    graphics = image.Draw_Rangce_Graphics(5 + y * deltaY + 1, 5 + x * deltaX + 1, deltaY - 2, deltaX - 2, Color.Black, graphics);
+                    graphics = image.Draw_Rangce_Graphics(5 + y * deltaY + 1, 5 + x * deltaX + 1, deltaY - 2, deltaX - 2, Color.OrangeRed, graphics);
                 }
                 else
                 {
@@ -113,7 +150,7 @@ namespace Robotics
                         if (flag <= 0.5)
                         {
                             A[x, y] = 0;
-                            graphics = image.Draw_Rangce_Graphics(5 + y * deltaY + 1, 5 + x * deltaX + 1, deltaY - 2, deltaX - 2, Color.Black, graphics);
+                            graphics = image.Draw_Rangce_Graphics(5 + y * deltaY + 1, 5 + x * deltaX + 1, deltaY - 2, deltaX - 2, Color.OrangeRed, graphics);
                         }
                         else
                         {
@@ -133,12 +170,21 @@ namespace Robotics
 
         private void btnDisplay_Click(object sender, EventArgs e)
         {
-            INDEX = 1;
+            //INDEX = 1;
             CreateMap();
             Image myimage = new Bitmap(@"Image//maping.png");
             pictureBoxContent.BackgroundImage = myimage;
         }
+        private void radButton1_Click(object sender, EventArgs e)
+        {
+            LoangDatam();
+            timerLoangDaTam.Start();
+            IndexLoangDatam = 0;
+        }
+        #endregion
 
+        #region Kiem tra diem(x,y) co thuoc ma tran khong
+        //
         private bool check(int x, int y)
         {
             if (x < 0 || y < 0 || x >= M || y >= N)
@@ -146,8 +192,16 @@ namespace Robotics
             else
                 return true;
         }
+        private bool check(int x, int y, int m, int n)
+        {
+            if (x < 0 || y < 0 || x >= m || y >= n)
+                return false;
+            else
+                return true;
+        }
+        #endregion
 
-        // Tinh so lan can
+        #region Tinh so lan can
         public void DegNode()
         {
             ImageCreate image = new ImageCreate();
@@ -176,24 +230,31 @@ namespace Robotics
                     }
 
             Thread.Sleep(10);
-            //bool check1 = true;
+            AddNgoCut(1);
+            foreach (Point nc in Ngocut)
+            {
+                int i = nc.X;
+                int j = nc.Y;
+                graphics = image.Draw_Bitmap_Graphics(5 + j * deltaY + 1, 5 + i * deltaX + 1, "Image/1532_Flag_system_Blue.png", graphics);
+            }
+
+        }
+        private void AddNgoCut(int numNeibor)
+        {
             for (int i = 0; i < M; i++)
                 //if (check1)
                 for (int j = 0; j < N; j++)
-                    if (Deg[i, j] == 1)
-                    {
-                        graphics = image.Draw_Bitmap_Graphics(5 + j * deltaY + 1, 5 + i * deltaX + 1, "Image/1532_Flag_system_Blue.png", graphics);
+                    if (Deg[i, j] == numNeibor)
+                    {                        
                         Ngocut.Add(new Point(i, j));
-                        //check1 = false;
-                        //break;
                     }
             Thread.Sleep(10);
-        }
-
-        private void btnRuning_Click(object sender, EventArgs e)
-        {
-            DegNode();
-        }
+            if (Ngocut.Count == 0)
+            {
+                AddNgoCut(2);
+            }
+        }        
+        #endregion       
 
         private void LoangDatam()
         {
@@ -260,18 +321,11 @@ namespace Robotics
             //Tìm đường đi, xuất phát từ 1 ô bất kỳ
             //DuongDi.Add(new Point(Ngocut[0].X, Ngocut[0].Y));
             //graphics = image.Draw_Bitmap_Graphics(5 + Ngocut[0].Y * deltaY + 1, 5 + Ngocut[0].X * deltaX + 1, "Image/Robot-48.png", graphics);
-        }
-
-
-        private void radButton1_Click(object sender, EventArgs e)
-        {
-            LoangDatam();
-            timerLoangDaTam.Start();
-            IndexLoangDatam = 0;
-        }
+        }      
 
         private void timerLoangDaTam_Tick(object sender, EventArgs e)
         {
+            binding.SoOToiDaDiDuoc = Queue.Count;
             ImageCreate image = new ImageCreate();
             if (IndexLoangDatam < Queue.Count)
             {
@@ -299,17 +353,10 @@ namespace Robotics
                 timerLoangDaTam.Stop();
                 KB();
                 timerPath.Start();
-            }
+            }            
         }
-
-        private bool check(int x, int y, int m, int n)
-        {
-            if (x < 0 || y < 0 || x >= m || y >= n)
-                return false;
-            else
-                return true;
-        }
-
+        
+        #region buttonSave- LoadMap
         private void buttonSaveMap_Click(object sender, EventArgs e)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
@@ -377,7 +424,7 @@ namespace Robotics
                     {
                         if (A[x, y] == 0)
                         {
-                            graphics = image.Draw_Rangce_Graphics(5 + y * deltaY + 1, 5 + x * deltaX + 1, deltaY - 2, deltaX - 2, Color.Black, graphics);
+                            graphics = image.Draw_Rangce_Graphics(5 + y * deltaY + 1, 5 + x * deltaX + 1, deltaY - 2, deltaX - 2, Color.OrangeRed, graphics);
                         }
                         else
                         {
@@ -395,7 +442,7 @@ namespace Robotics
             //    MessageBox.Show("Dinh dang du lieu khong dung, xin thu lai !");
             //}
         }
-
+        #endregion
 
         private int BFS(int m, int n, Point p, int[,] a)
         {
@@ -424,6 +471,7 @@ namespace Robotics
             }
             return Sum;
         }
+
 
         private int RBFS(Point p, int m, int n, int r, int[,] truyvet, int[,] deg)
         {
@@ -662,15 +710,19 @@ namespace Robotics
                     {
                         DuongDi = DuongDi.GetRange(0, DuongDi.Count - 1);
                         Path.Add(DuongDi[DuongDi.Count - 1]);
+                        binding.SoOLapLai++;
                     }
                     else
                         break;
                 }
             }
+            binding.SoBuocToiDaSeDi = Path.Count;
+            binding.TiLeLapLai = (float)binding.SoOLapLai / (float)binding.SoBuocToiDaSeDi;
         }
 
+        #region Ve hinh robot di chuyen
         private void timerPath_Tick(object sender, EventArgs e)
-        {
+        {            
             ImageCreate image = new ImageCreate();
             if (indexPath < Path.Count - 1)
             {
@@ -719,24 +771,29 @@ namespace Robotics
 
                 }
                 indexPath++;
+                binding.SoBuocDaDi++;
             }
             else
-            if (indexPath == Path.Count - 1)
+            if ((indexPath == Path.Count - 1) && stopFlag)
             {
                 int u = Path[indexPath].X;
                 int v = Path[indexPath].Y;
                 image.Draw_Bitmap_Graphics(5 + v * deltaX + 1, 5 + u * deltaY + 1, "image/1532_Flag_system_yellow.png", graphics);
+                binding.SoBuocDaDi++;
+                stopFlag = false;
             }
             else
                 timerPath.Stop();
         }
-
+        #endregion
         //duoi-phai = 0
         //trai-duoi = 1
         //trai-phai = 2
         //tren-duoi = 3
         //tren-phai = 4
         //tren-trai = 5
+
+        #region Xac dinh huong trong 2 buoc di de ve hinh
         private int Huong_Action(Point A, Point B, Point C)
         {
             if ((A.X - B.X == 1 && A.Y == B.Y && B.X == C.X && B.Y - C.Y == -1) || (C.X - B.X == 1 && C.Y == B.Y && B.X == A.X && B.Y - A.Y == -1))
@@ -770,5 +827,6 @@ namespace Robotics
             }
             return -1;
         }
+        #endregion
     }
 }
